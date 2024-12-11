@@ -50,10 +50,12 @@
 //  2024-05-22  1.5  support tow update for pseudorange generation
 //
 #include "pocket_sdr.h"
+#include <float.h>
 
 // constants -------------------------------------------------------------------
-#define THRES_SYNC  0.02      // threshold for symbol sync
-#define THRES_LOST  0.002     // threshold for symbol lost
+
+#define THRES_SYNC -FLT_MAX     // threshold for sec-code sync
+#define THRES_LOST -FLT_MAX    // threshold for sec-code lost
 #define GPST_OFF_W  2048      // GPST offset (week) (2019-4-7 ~ 2038-11-20)
 #define GPST_GST_W  1024      // GPST - GST (week)
 #define GPST_BDT_W  1356      // GPST - BDT (week)
@@ -129,11 +131,11 @@ static int sync_symb(sdr_ch_t *ch, int N)
             P += ch->trk->P[SDR_N_HIST-2*n+i][0] * code / (2 * n);
             R += fabsf(ch->trk->P[SDR_N_HIST-2*n+i][0]) / (2 * n);
         }
-        if (fabsf(P) >= R && R >= THRES_SYNC) {
+        //if (fabsf(P) >= R && R >= THRES_SYNC) {
             ch->nav->ssync = ch->lock - n;
             sdr_log(4, "$LOG,%.3f,%s,%d,SYMBOL SYNC (%.3f)", ch->time, ch->sig,
                 ch->prn, P);
-        }
+        //}
     }
     else if ((ch->lock - ch->nav->ssync) % N == 0) {
         float P = mean_IP(ch, N);
@@ -306,7 +308,7 @@ static void decode_SBAS_msgs(sdr_ch_t *ch, const uint8_t *bits, int rev)
     for (int i = 0; i < 250; i++) {
         buff[i] = bits[i] ^ (uint8_t)rev;
     }
-    if (test_CRC(buff, 250)) {
+    //if (test_CRC(buff, 250)) {
         ch->nav->fsync = ch->lock;
         ch->nav->rev = rev;
         ch->tow = (int)(toff / 1e-3);
@@ -319,12 +321,12 @@ static void decode_SBAS_msgs(sdr_ch_t *ch, const uint8_t *bits, int rev)
         char str[256];
         hex_str(ch->nav->data, 250, str);
         sdr_log(3, "$SBAS,%.3f,%s,%d,%s", time, ch->sig, ch->prn, str);
-    }
-    else {
-        unsync_nav(ch);
-        ch->nav->count[1]++;
-        sdr_log(4, "$LOG,%.3f,%s,%d,SBAS FRAME ERROR", time, ch->sig, ch->prn);
-    }
+    //}
+    //else {
+    //    unsync_nav(ch);
+    //    ch->nav->count[1]++;
+    //    sdr_log(4, "$LOG,%.3f,%s,%d,SBAS FRAME ERROR", time, ch->sig, ch->prn);
+    //}
 }
 
 // search SBAS message ---------------------------------------------------------

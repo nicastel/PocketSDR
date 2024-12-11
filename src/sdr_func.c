@@ -54,7 +54,7 @@
 static sdr_cpx16_t mix_tbl[NTBL*256] = {{0,0}}; // carrier-mixed-data LUT
 static fftwf_plan fftw_plans[MAX_FFTW_PLAN][2] = {{0}}; // FFTW plan buffer
 static int fftw_size[MAX_FFTW_PLAN] = {0}; // FFTW plan sizes
-static int log_lvl = 3;           // log level
+static int log_lvl = 4;           // log level
 static stream_t *log_str = NULL;  // log stream
 static char log_buff[MAX_LOG_BUFF]; // log buffer
 static int log_buff_p = 0;        // log buffer pointer

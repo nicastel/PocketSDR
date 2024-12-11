@@ -18,6 +18,7 @@
 //
 #include <ctype.h>
 #include <math.h>
+#include <float.h>
 #include "pocket_sdr.h"
 
 // constants and macros --------------------------------------------------------
@@ -32,10 +33,10 @@
 #define B_FLL_W    5.0      // band-width of FLL filter (Hz) (wide)
 #define B_FLL_N    2.0      // band-width of FLL filter (Hz) (narrow)
 #define MAX_DOP    5000.0   // max Doppler for acquisition (Hz)
-#define THRES_CN0_L 35.0    // C/N0 threshold (dB-Hz) (lock)
-#define THRES_CN0_U 32.0    // C/N0 threshold (dB-Hz) (lost)
-#define THRES_SYNC 0.02     // threshold for sec-code sync
-#define THRES_LOST 0.002    // threshold for sec-code lost
+#define THRES_CN0_L 30.0    // C/N0 threshold (dB-Hz) (lock)
+#define THRES_CN0_U 28.0    // C/N0 threshold (dB-Hz) (lost)
+#define THRES_SYNC -FLT_MAX     // threshold for sec-code sync
+#define THRES_LOST -FLT_MAX    // threshold for sec-code lost
 #define N_CODE     10       // number of resampled code bank
 #define ADD_CORR   40       // number of additional correlators
 
@@ -280,10 +281,10 @@ static void sync_sec_code(sdr_ch_t *ch, int N)
             P += ch->trk->P[SDR_N_HIST-N+i][0] * ch->sec_code[i] / N;
             R += fabsf(ch->trk->P[SDR_N_HIST-N+i][0]) / N;
         }
-        if (fabsf(P) >= R && R >= THRES_SYNC) {
+        //if (fabsf(P) >= R && R >= THRES_SYNC) {
             ch->trk->sec_sync = ch->lock;
             ch->trk->sec_pol = (P > 0.0f) ? 1 : -1;
-        }
+        //}
     }
     else if ((ch->lock - ch->trk->sec_sync) % N == 0) {
         float P = 0.0;
